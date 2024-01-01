@@ -124,10 +124,8 @@ struct Entity {
   //! The subsets defined on this Entity
   std::vector<Subset> subsets;
 
-  /* Element size queries. */
-  //! Return the number of elements in this Entity.
-  constexpr int size() const { return static_cast<int>(mask.size()); }
-  //! Return the number of non-ghost elements in this Entity.
+  //! Return the number of elements in this Entity
+  int size() const { return static_cast<int>(mask.size()); }
   constexpr int local_size() const { return lsize_; }
   //! Return the number of ghost elements in this Entity.
   constexpr int ghost_local_size() const { return size() - lsize_; }
