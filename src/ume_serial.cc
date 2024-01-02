@@ -21,6 +21,12 @@
 #include <iostream>
 #include <vector>
 
+#ifdef ANNOTATE
+extern "C" {
+#include "roi.h"
+}
+#endif
+
 using namespace Ume::SOA_Idx;
 
 std::vector<Mesh> read_meshes(int argc, char *argv[]);
@@ -33,10 +39,16 @@ int main(int argc, char *argv[]) {
   Ume::Comm::Dummy_Transport comm;
   ranks[0].comm = &comm;
 
+#ifdef ANNOTATE
+    annotate_init_();
+    roi_begin_();
+#endif
   auto const &test = ranks[0].ds->caccess_vec3v("corner_csurf");
   auto const &test2 = ranks[0].ds->caccess_vec3v("side_surz");
   auto const &test3 = ranks[0].ds->caccess_vec3v("point_norm");
-
+#ifdef ANNOTATE
+    roi_end_();
+#endif
   return 0;
 }
 
