@@ -37,6 +37,16 @@
 #include <vector>
 
 using Mesh = Ume::SOA_Idx::Mesh;
+#ifdef ANNOTATE
+extern "C" {
+#include "roi.h"
+}
+#endif // ANNOTATE
+
+bool read_mesh(
+    char const *const basename, int const mype, Ume::SOA_Idx::Mesh &mesh);
+bool test_point_gathscat(Ume::SOA_Idx::Mesh &mesh);
+
 using DBLV_T = typename Ume::DS_Types::DBLV_T;
 using VEC3V_T = typename Ume::DS_Types::VEC3V_T;
 using VEC3_T = typename Ume::DS_Types::VEC3_T;
@@ -66,10 +76,10 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
-  size_t ic = 1; // set iteration count to 1 for default 
+  size_t ic = 1; // set iteration count to 1 for default
   if(argc > 3 && std::string(argv[2])=="-i") {
      ic=std::atoi(argv[3]);
-  } 
+  }
 
   /* This allows us to attach a debugger to a single rank specified in the
      UME_DEBUG_RANK environment variable. */
@@ -110,6 +120,11 @@ int main(int argc, char *argv[]) {
    * using inverted connectivities. */
   VEC3V_T pgrad, zgrad;
   Ume::Timer orig_time;
+#ifdef ANNOTATE
+    annotate_init_();
+    roi_begin_();
+#endif // ANNOTATE
+
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   orig_time.start();
   for (size_t i=0;i<ic;i++) {
@@ -126,6 +141,11 @@ int main(int argc, char *argv[]) {
   }
   invert_time.stop();
 
+#ifdef ANNOTATE
+    annotate_init_();
+    roi_end_();
+#endif // ANNOTATE
+  // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
     std::cout << "Original algorithm took: " << orig_time.seconds() << "s\n";
     std::cout << "Inverted algorithm took: " << invert_time.seconds() << "s\n";
