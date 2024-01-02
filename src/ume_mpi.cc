@@ -35,6 +35,12 @@
 #include <map>
 #include <vector>
 
+#ifdef ANNOTATE
+extern "C" {
+#include "roi.h"
+}
+#endif // ANNOTATE
+
 bool read_mesh(
     char const *const basename, int const mype, Ume::SOA_Idx::Mesh &mesh);
 bool test_point_gathscat(Ume::SOA_Idx::Mesh &mesh);
@@ -92,6 +98,11 @@ int main(int argc, char *argv[]) {
 
   VEC3V_T pgrad, zgrad;
   Ume::Timer orig_time;
+#ifdef ANNOTATE
+    annotate_init_();
+    roi_begin_();
+#endif // ANNOTATE
+
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   orig_time.start();
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
@@ -104,6 +115,10 @@ int main(int argc, char *argv[]) {
   Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
   invert_time.stop();
 
+#ifdef ANNOTATE
+    annotate_init_();
+    roi_end_();
+#endif // ANNOTATE
   // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
     std::cout << "Original algorithm took: " << orig_time.seconds() << "s\n";
