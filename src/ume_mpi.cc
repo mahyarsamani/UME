@@ -37,7 +37,7 @@
 
 #ifdef ANNOTATE
 extern "C" {
-#include "roi.h"
+#include "annotate.h"
 }
 #endif // ANNOTATE
 
