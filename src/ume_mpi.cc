@@ -39,7 +39,7 @@
 using Mesh = Ume::SOA_Idx::Mesh;
 #ifdef ANNOTATE
 extern "C" {
-#include "roi.h"
+#include "annotate.h"
 }
 #endif // ANNOTATE
 
