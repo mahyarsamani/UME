@@ -3,11 +3,11 @@
 add_subdirectory(Ume)
 
 add_executable(ume_serial ume_serial.cc)
-target_include_directories(ume_serial PRIVATE ${ROI_BASE_INC} ${ROI_TYPE_INC})
-target_link_directories(ume_serial PRIVATE ${ROI_BASE_LIB_DIR} ${ROI_TYPE_LIB_DIR})
-target_link_libraries(ume_serial Ume ${ROI_LIB_OBJS})
+target_include_directories(ume_serial PRIVATE ${ANNOTATE_BASE_INC} ${ANNOTATE_TYPE_INC})
+target_link_directories(ume_serial PRIVATE ${ANNOTATE_BASE_LIB_DIR} ${ANNOTATE_TYPE_LIB_DIR})
+target_link_libraries(ume_serial Ume ${ANNOTATE_LIB_OBJS})
 set_target_properties(ume_serial PROPERTIES
-  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ROI_CXX_FLAGS}"
+  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS}"
   COMPILE_OPTIONS "${WARNING_FLAGS}"
   )
 
@@ -22,11 +22,11 @@ target_compile_options(txt2bin PRIVATE ${WARNING_FLAGS}
 #############################################################################
 if(USE_MPI)
 add_executable(ume_mpi ume_mpi.cc)
-target_include_directories(ume_mpi PRIVATE ${ROI_BASE_INC} ${ROI_TYPE_INC})
-target_link_directories(ume_mpi PRIVATE ${ROI_BASE_LIB_DIR} ${ROI_TYPE_LIB_DIR})
-target_link_libraries(ume_mpi Ume ${ROI_LIB_OBJS})
+target_include_directories(ume_mpi PRIVATE ${ANNOTATE_BASE_INC} ${ANNOTATE_TYPE_INC})
+target_link_directories(ume_mpi PRIVATE ${ANNOTATE_BASE_LIB_DIR} ${ANNOTATE_TYPE_LIB_DIR})
+target_link_libraries(ume_mpi Ume ${ANNOTATE_LIB_OBJS})
 set_target_properties(ume_mpi PROPERTIES
-  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ROI_CXX_FLAGS}"
+  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS}"
   COMPILE_OPTIONS "${WARNING_FLAGS}"
   )
 endif()
