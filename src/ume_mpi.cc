@@ -67,6 +67,10 @@ int main(int argc, char *argv[]) {
   Ume::Comm::MPI comm(&argc, &argv);
   mesh.comm = &comm;
 
+#ifdef ANNOTATE
+    annotate_init_();
+#endif // ANNOTATE
+
   if (comm.pe() == 0)
     std::cout << "Initializing mesh..." << std::endl;
 
@@ -120,9 +124,6 @@ int main(int argc, char *argv[]) {
    * using inverted connectivities. */
   VEC3V_T pgrad, zgrad;
   Ume::Timer orig_time;
-#ifdef ANNOTATE
-    annotate_init_();
-#endif // ANNOTATE
 
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   orig_time.start();
@@ -156,9 +157,6 @@ int main(int argc, char *argv[]) {
 #endif // ANNOTATE
   invert_time.stop();
 
-#ifdef ANNOTATE
-    annotate_term_();
-#endif // ANNOTATE
   // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
     std::cout << "Original algorithm took: " << orig_time.seconds() << "s\n";
@@ -212,6 +210,72 @@ int main(int argc, char *argv[]) {
   if (comm.pe() == 0)
     std::cout << "Done." << std::endl;
 
+  if (pgrad != pgrad_invert) {
+    std::cout << "PE" << mesh.mype << " pgrad != pgrad_invert" << std::endl;
+  }
+
+  auto const &z2pz = mesh.ds->caccess_intrr("m:z>pz");
+  auto const &z2p = mesh.ds->caccess_intrr("m:z>p");
+  auto const &kptyp = mesh.points.mask;
+  std::vector<int> grad_zones;
+  for (int z = 0; z < mesh.zones.size(); ++z) {
+    if (z == czi || kztyp[z] < 1)
+      continue;
+    if (zgrad[z] != 0.0)
+      grad_zones.push_back(z);
+  }
+
+  std::vector<int> grad_points;
+  for (int p = 0; p < mesh.points.size(); ++p) {
+    if (kptyp[p] > 0 && pgrad[p] != 0.0)
+      grad_points.push_back(p);
+  }
+
+  std::sort(grad_zones.begin(), grad_zones.end());
+  std::sort(grad_points.begin(), grad_points.end());
+  std::vector<int> diff;
+  std::ranges::set_difference(grad_zones, z2pz[czi], std::back_inserter(diff));
+  if (!diff.empty()) {
+    std::cout << "PE" << mesh.mype << " zone diff " << diff.size() << " found "
+              << grad_zones.size() << " expected " << z2pz.size(czi) << '\n';
+  }
+
+  diff.clear();
+  std::ranges::set_difference(grad_points, z2p[czi], std::back_inserter(diff));
+  if (!diff.empty()) {
+    std::cout << "PE" << mesh.mype << " pt diff " << diff.size() << " found "
+              << grad_points.size() << " expected " << z2p.size(czi) << '\n';
+  }
+
+  // Do a face area calculation
+  if (comm.pe() == 0)
+    std::cout << "Calculating face areas..." << std::endl;
+
+  // Create a result vector and initialize to impossible value
+  DBLV_T face_area(mesh.faces.size(), -100000.0);
+
+  Ume::calc_face_area(mesh, face_area);
+
+  orig_time.clear();
+  orig_time.start();
+#ifdef ANNOTATE
+    comm.barrier();
+    roi_begin_();
+#endif // ANNOTATE
+  Ume::calc_face_area(mesh, face_area);
+#ifdef ANNOTATE
+    roi_end_();
+#endif // ANNOTATE
+  orig_time.stop();
+
+  if (comm.pe() == 0)
+    std::cout << "Face area calculation took: " << orig_time.seconds() << "s\n";
+
+  if (comm.pe() == 0)
+    std::cout << "Done." << std::endl;
+#ifdef ANNOTATE
+    annotate_term_();
+#endif // ANNOTATE
   comm.stop();
   return EXIT_SUCCESS;
 }
