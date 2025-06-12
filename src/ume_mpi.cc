@@ -58,6 +58,10 @@ int main(int argc, char *argv[]) {
   Ume::Comm::MPI comm(&argc, &argv);
   mesh.comm = &comm; // Attach the communicator to the mesh
 
+#ifdef ANNOTATE
+    annotate_init_();
+#endif // ANNOTATE
+
   if (comm.pe() == 0)
     std::cout << "Initializing mesh..." << std::endl;
   /* Read the data file */
@@ -98,9 +102,6 @@ int main(int argc, char *argv[]) {
 
   VEC3V_T pgrad, zgrad;
   Ume::Timer orig_time;
-#ifdef ANNOTATE
-    annotate_init_();
-#endif // ANNOTATE
 
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   orig_time.start();
@@ -128,9 +129,6 @@ int main(int argc, char *argv[]) {
 #endif // ANNOTATE
   invert_time.stop();
 
-#ifdef ANNOTATE
-    annotate_term_();
-#endif // ANNOTATE
   // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
     std::cout << "Original algorithm took: " << orig_time.seconds() << "s\n";
@@ -195,10 +193,17 @@ int main(int argc, char *argv[]) {
   DBLV_T face_area(mesh.faces.size(), -100000.0);
 
   Ume::calc_face_area(mesh, face_area);
-  
+
   orig_time.clear();
   orig_time.start();
+#ifdef ANNOTATE
+    comm.barrier();
+    roi_begin_();
+#endif // ANNOTATE
   Ume::calc_face_area(mesh, face_area);
+#ifdef ANNOTATE
+    roi_end_();
+#endif // ANNOTATE
   orig_time.stop();
 
   if (comm.pe() == 0)
@@ -206,6 +211,9 @@ int main(int argc, char *argv[]) {
 
   if (comm.pe() == 0)
     std::cout << "Done." << std::endl;
+#ifdef ANNOTATE
+    annotate_term_();
+#endif // ANNOTATE
   comm.stop();
   return 0;
 }
