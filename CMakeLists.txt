@@ -116,4 +116,10 @@ if(NOT "${CMAKE_ANNOTATE_TYPE}notset" STREQUAL "notset")
     endif()
 endif()
 
+if(NOT "${CMAKE_ROI_TYPE}notset" STREQUAL "notset")
+    if( ${CMAKE_ROI_TYPE} STREQUAL "sync")
+        set(ROI_TYPE_FLAG "SYNC_ON_ROI")
+    endif()
+endif()
+
 add_subdirectory(src)
