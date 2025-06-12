@@ -122,7 +122,6 @@ int main(int argc, char *argv[]) {
   Ume::Timer orig_time;
 #ifdef ANNOTATE
     annotate_init_();
-    roi_begin_();
 #endif // ANNOTATE
 
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
@@ -130,6 +129,14 @@ int main(int argc, char *argv[]) {
   for (size_t i=0;i<ic;i++) {
     Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   }
+#ifdef ANNOTATE
+    comm.barrier();
+    roi_begin_();
+#endif // ANNOTATE
+  Ume::gradzatz(mesh, zfield, zgrad, pgrad);
+#ifdef ANNOTATE
+    roi_end_();
+#endif // ANNOTATE
   orig_time.stop();
 
   VEC3V_T pgrad_invert, zgrad_invert;
@@ -139,11 +146,18 @@ int main(int argc, char *argv[]) {
   for (size_t i=0;i<ic;i++) {
     Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
   }
+#ifdef ANNOTATE
+    comm.barrier();
+    roi_begin_();
+#endif // ANNOTATE
+  Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
+#ifdef ANNOTATE
+    roi_end_();
+#endif // ANNOTATE
   invert_time.stop();
 
 #ifdef ANNOTATE
-    annotate_init_();
-    roi_end_();
+    annotate_term_();
 #endif // ANNOTATE
   // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
