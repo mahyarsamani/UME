@@ -13,6 +13,9 @@
   \file Ume/gradient.cc
 */
 #include "Ume/gradient.hh"
+#include "Ume/Comm_MPI.hh"
+
+#include <iostream>
 
 namespace Ume {
 
@@ -20,8 +23,8 @@ using DBLV_T = DS_Types::DBLV_T;
 using VEC3V_T = DS_Types::VEC3V_T;
 using VEC3_T = DS_Types::VEC3_T;
 
-void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
-    VEC3V_T &point_gradient) {
+void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point_gradient) {
+  std::cout << "gradzatp called." << std::endl;
   auto const &csurf = mesh.ds->caccess_vec3v("corner_csurf");
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
   auto const &point_normal = mesh.ds->caccess_vec3v("point_norm");
@@ -50,10 +53,10 @@ void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
   mesh.points.gathscat(Ume::Comm::Op::SUM, point_gradient);
 
   /*
-    Divide by point control volume to get gradient.  If a point is on the outer
-    perimeter of the mesh (POINT_TYPE=-1), subtract the outward normal component
-    of the gradient using the point normals.
-   */
+  Divide by point control volume to get gradient.  If a point is on the outer
+  perimeter of the mesh (POINT_TYPE=-1), subtract the outward normal component
+  of the gradient using the point normals.
+  */
   for (int p = 0; p < pl; ++p) {
     if (point_type[p] > 0) {
       // Internal point
@@ -62,14 +65,14 @@ void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
       // Mesh boundary point
       double const ppdot = dotprod(point_gradient[p], point_normal[p]);
       point_gradient[p] =
-          (point_gradient[p] - point_normal[p] * ppdot) / point_volume[p];
+        (point_gradient[p] - point_normal[p] * ppdot) / point_volume[p];
     }
   }
   mesh.points.scatter(point_gradient);
 }
 
-void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
-    VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
+void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
+  std::cout << "gradzatz called." << std::endl;
   auto const &c_to_z_map = mesh.ds->caccess_intv("m:c>z");
   auto const &c_to_p_map = mesh.ds->caccess_intv("m:c>p");
   int const num_local_corners = mesh.corners.local_size();
@@ -106,8 +109,8 @@ void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
   mesh.zones.scatter(zone_gradient);
 }
 
-void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
-    VEC3V_T &point_gradient) {
+void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point_gradient) {
+  std::cout << "gradzatp_invert called." << std::endl;
   auto const &csurf = mesh.ds->caccess_vec3v("corner_csurf");
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
   auto const &point_normal = mesh.ds->caccess_vec3v("point_norm");
@@ -153,8 +156,8 @@ void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
   mesh.points.scatter(point_gradient);
 }
 
-void gradzatz_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field,
-    VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
+void gradzatz_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
+  std::cout << "gradzatz_invert called." << std::endl;
   auto const &z_to_c_map = mesh.ds->caccess_intrr("m:z>c");
   auto const &c_to_p_map = mesh.ds->caccess_intv("m:c>p");
   int const num_local_zones = mesh.zones.local_size();

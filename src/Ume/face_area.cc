@@ -14,6 +14,8 @@
 */
 #include "Ume/face_area.hh"
 
+#include <iostream>
+
 namespace Ume {
 
 using Mesh = SOA_Idx::Mesh;
@@ -22,6 +24,7 @@ using INTV_T = DS_Types::INTV_T;
 using VEC3V_T = DS_Types::VEC3V_T;
 
 void calc_face_area(Mesh &mesh, DBLV_T &face_area) {
+  std::cout << "face_area called." << std::endl;
   auto const &side_type = mesh.sides.mask;
   auto const &face_comm_type = mesh.faces.comm_type;
   auto const &s_to_f_map = mesh.ds->caccess_intv("m:s>f");
