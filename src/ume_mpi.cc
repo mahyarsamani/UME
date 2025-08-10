@@ -255,9 +255,6 @@ int main(int argc, char *argv[]) {
   if (comm.pe() == 0)
     std::cout << "Calculating face areas..." << std::endl;
 
-  // Create a result vector and initialize to impossible value
-  DBLV_T face_area(mesh.faces.size(), -100000.0);
-
   Ume::calc_face_area(mesh, face_area);
 
   orig_time.clear();
