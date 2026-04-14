@@ -131,14 +131,17 @@ int main(int argc, char *argv[]) {
     Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   }
 #ifdef ANNOTATE
-  roi_begin_();
+    roi_begin_();
 #ifdef SYNC_ON_ROI
-    comm.barrier();
+    annotate_synchronize_(1);
 #endif // SYNC_ON_ROI
 #endif // ANNOTATE
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
 #ifdef ANNOTATE
     roi_end_();
+#ifdef SYNC_ON_ROI
+    annotate_synchronize_(2);
+#endif // SYNC_ON_ROI
 #endif // ANNOTATE
   orig_time.stop();
 
@@ -152,12 +155,15 @@ int main(int argc, char *argv[]) {
 #ifdef ANNOTATE
     roi_begin_();
 #ifdef SYNC_ON_ROI
-    comm.barrier();
+    annotate_synchronize_(3);
 #endif // SYNC_ON_ROI
 #endif // ANNOTATE
   Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
 #ifdef ANNOTATE
     roi_end_();
+#ifdef SYNC_ON_ROI
+    annotate_synchronize_(4);
+#endif // SYNC_ON_ROI
 #endif // ANNOTATE
   invert_time.stop();
 
@@ -262,12 +268,15 @@ int main(int argc, char *argv[]) {
 #ifdef ANNOTATE
     roi_begin_();
 #ifdef SYNC_ON_ROI
-    comm.barrier();
+    annotate_synchronize_(5);
 #endif // SYNC_ON_ROI
 #endif // ANNOTATE
   Ume::calc_face_area(mesh, face_area);
 #ifdef ANNOTATE
     roi_end_();
+#ifdef SYNC_ON_ROI
+    annotate_synchronize_(6);
+#endif // SYNC_ON_ROI
 #endif // ANNOTATE
   orig_time.stop();
 

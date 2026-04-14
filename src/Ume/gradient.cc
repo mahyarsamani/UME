@@ -24,7 +24,6 @@ using VEC3V_T = DS_Types::VEC3V_T;
 using VEC3_T = DS_Types::VEC3_T;
 
 void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point_gradient) {
-  std::cout << "gradzatp called." << std::endl;
   auto const &csurf = mesh.ds->caccess_vec3v("corner_csurf");
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
   auto const &point_normal = mesh.ds->caccess_vec3v("point_norm");
@@ -72,7 +71,6 @@ void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point
 }
 
 void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
-  std::cout << "gradzatz called." << std::endl;
   auto const &c_to_z_map = mesh.ds->caccess_intv("m:c>z");
   auto const &c_to_p_map = mesh.ds->caccess_intv("m:c>p");
   int const num_local_corners = mesh.corners.local_size();
@@ -110,7 +108,6 @@ void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_
 }
 
 void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point_gradient) {
-  std::cout << "gradzatp_invert called." << std::endl;
   auto const &csurf = mesh.ds->caccess_vec3v("corner_csurf");
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
   auto const &point_normal = mesh.ds->caccess_vec3v("point_norm");
@@ -157,7 +154,6 @@ void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T
 }
 
 void gradzatz_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_gradient, VEC3V_T &point_gradient) {
-  std::cout << "gradzatz_invert called." << std::endl;
   auto const &z_to_c_map = mesh.ds->caccess_intrr("m:z>c");
   auto const &c_to_p_map = mesh.ds->caccess_intv("m:c>p");
   int const num_local_zones = mesh.zones.local_size();

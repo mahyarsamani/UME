@@ -114,10 +114,6 @@ void MPI::exchange(Buffers<DS_Types::VEC3V_T> const &sends,
   exchange_impl(*this, sends, recvs);
 }
 
-void MPI::barrier() {
-    MPI_Barrier(MPI_COMM_WORLD);
-}
-
 int MPI::stop() {
   MPI_Finalize();
   return 0;
