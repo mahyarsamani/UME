@@ -17,6 +17,10 @@
 
 #include "Ume/SOA_Idx_Mesh.hh"
 
+#ifdef HOV
+#include "Ume/hov_context.hh"
+#endif
+
 namespace Ume {
 
 //! Calculate the gradient of a zone-centered field at mesh points.
@@ -26,7 +30,7 @@ namespace Ume {
   volume.
 */
 void gradzatp(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
-    DS_Types::VEC3V_T &point_gradient);
+    DS_Types::VEC3V_T &point_gradient, bool measure = false);
 
 //! Calculate the gradient of a zone-centered field at the zone centers.
 /*!
@@ -35,7 +39,7 @@ void gradzatp(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
   gradient.
  */
 void gradzatz(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
-    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient);
+    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient, bool measure = false);
 
 //! Calculate the gradient of a zone-centered field at mesh points.
 /*!
@@ -44,7 +48,7 @@ void gradzatz(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
   volume. This version uses a thread-safe connectivity.
 */
 void gradzatp_invert(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
-    DS_Types::VEC3V_T &point_gradient);
+    DS_Types::VEC3V_T &point_gradient, bool measure = false);
 
 //! Calculate the gradient of a zone-centered field at the zone centers.
 /*!
@@ -53,8 +57,26 @@ void gradzatp_invert(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
   gradient. This version uses a thread-safe connectivity.
  */
 void gradzatz_invert(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
-    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient);
+    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient, bool measure = false);
 
 } // namespace Ume
+
+#ifdef HOV
+namespace Ume {
+void gradzatp_hov(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
+    DS_Types::VEC3V_T &point_gradient, GradzatpHOVContext &ctx, bool measure = false);
+
+void gradzatz_hov(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
+    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient,
+    GradzatpHOVContext &p_ctx, GradzatzHOVContext &z_ctx, bool measure = false);
+
+void gradzatp_invert_hov(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
+    DS_Types::VEC3V_T &point_gradient, GradzatpInvertHOVContext &ctx, bool measure = false);
+
+void gradzatz_invert_hov(SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field,
+    DS_Types::VEC3V_T &zone_gradient, DS_Types::VEC3V_T &point_gradient,
+    GradzatpInvertHOVContext &p_ctx, GradzatzInvertHOVContext &z_ctx, bool measure = false);
+} // namespace Ume
+#endif
 
 #endif
