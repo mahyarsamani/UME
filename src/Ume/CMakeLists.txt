@@ -79,6 +79,13 @@ target_compile_options(Ume
   PRIVATE ${WARNING_FLAGS}
   )
 
+if(HOV)
+  target_compile_definitions(Ume PUBLIC HOV)
+  target_include_directories(Ume PUBLIC ${WORKDIR}/hov/include)
+  target_link_directories(Ume PUBLIC ${WORKDIR}/hov/lib)
+  target_link_libraries(Ume PUBLIC hov)
+endif()
+
 # -----------------------------------------------------------------------
 # Library/Header installation section
 # -----------------------------------------------------------------------

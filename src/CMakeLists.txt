@@ -7,7 +7,7 @@ target_include_directories(ume_serial PRIVATE ${ANNOTATE_BASE_INC} ${ANNOTATE_TY
 target_link_directories(ume_serial PRIVATE ${ANNOTATE_BASE_LIB_DIR} ${ANNOTATE_TYPE_LIB_DIR})
 target_link_libraries(ume_serial Ume ${ANNOTATE_LIB_OBJS})
 set_target_properties(ume_serial PROPERTIES
-  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS};${ROI_REGION_FLAG}"
+  COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS};${KERNEL_FLAG}"
   COMPILE_OPTIONS "${WARNING_FLAGS}"
   )
 
@@ -27,7 +27,7 @@ set_target_properties(scale_mesh PROPERTIES
 # Things that depend on MPI
 #############################################################################
 if(USE_MPI)
-  foreach(roi_name gradzatz gradzatz_invert face_area)
+  foreach(roi_name gradzatz gradzatp gradzatz_invert gradzatp_invert face_area)
     string(TOUPPER ${roi_name} ROI_UPPER)
     set(target_name ume_mpi_${roi_name})
     add_executable(${target_name} ume_mpi.cc)
@@ -35,9 +35,15 @@ if(USE_MPI)
     target_link_directories(${target_name} PRIVATE ${ANNOTATE_BASE_LIB_DIR} ${ANNOTATE_TYPE_LIB_DIR})
     target_link_libraries(${target_name} Ume ${ANNOTATE_LIB_OBJS})
     set_target_properties(${target_name} PROPERTIES
-      COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS};${ROI_TYPE_FLAG};ROI_${ROI_UPPER}"
+      COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS};${ROI_TYPE_FLAG};KERNEL_${ROI_UPPER}"
       COMPILE_OPTIONS "${WARNING_FLAGS}"
     )
+    if(HOV)
+      target_compile_definitions(${target_name} PRIVATE HOV)
+      target_include_directories(${target_name} PRIVATE ${WORKDIR}/hov/include)
+      target_link_directories(${target_name} PRIVATE ${WORKDIR}/hov/lib)
+      target_link_libraries(${target_name} hov)
+    endif()
   endforeach()
 endif()
 

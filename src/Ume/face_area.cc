@@ -45,7 +45,7 @@ void calc_face_area(SOA_Idx::Mesh &mesh, DBLV_T &face_area, bool measure) {
   INTV_T side_tag(sll, 0);
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_FACE_AREA)
+#if defined(ANNOTATE) && defined(KERNEL_FACE_AREA)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -70,7 +70,7 @@ void calc_face_area(SOA_Idx::Mesh &mesh, DBLV_T &face_area, bool measure) {
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_FACE_AREA)
+#if defined(ANNOTATE) && defined(KERNEL_FACE_AREA)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -97,7 +97,7 @@ void calc_face_area_hov(SOA_Idx::Mesh &mesh, DBLV_T &face_area, FaceAreaHOVConte
   ctx.side_tag.assign(sll, 0);
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_FACE_AREA)
+#if defined(ANNOTATE) && defined(KERNEL_FACE_AREA)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -128,7 +128,7 @@ void calc_face_area_hov(SOA_Idx::Mesh &mesh, DBLV_T &face_area, FaceAreaHOVConte
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_FACE_AREA)
+#if defined(ANNOTATE) && defined(KERNEL_FACE_AREA)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);

@@ -48,7 +48,7 @@ void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point
   point_gradient.assign(pll, VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -66,7 +66,7 @@ void gradzatp(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &point
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -112,7 +112,7 @@ void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_
   zone_gradient.assign(mesh.zones.size(), VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -131,7 +131,7 @@ void gradzatz(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &zone_
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -157,7 +157,7 @@ void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T
   point_gradient.assign(num_points, VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP_INVERT)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -174,7 +174,7 @@ void gradzatp_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP_INVERT)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -214,7 +214,7 @@ void gradzatz_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T
   zone_gradient.assign(mesh.zones.size(), VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ_INVERT)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -240,7 +240,7 @@ void gradzatz_invert(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ_INVERT)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -273,7 +273,7 @@ void gradzatp_hov(Ume::SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field, 
   ctx.pg_z.assign(pll, 0.0);
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -306,7 +306,7 @@ void gradzatp_hov(Ume::SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field, 
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -314,9 +314,9 @@ void gradzatp_hov(Ume::SOA_Idx::Mesh &mesh, DS_Types::DBLV_T const &zone_field, 
 #endif // ANNOTATE
   }
 
-  point_gradient.assign(pll, VEC3_T(0.0));
+  point_gradient.assign(pll, VEC3_T({0.0, 0.0, 0.0}));
   for (int p = 0; p < pl; ++p) {
-    point_gradient[p] = VEC3_T(ctx.pg_x[p], ctx.pg_y[p], ctx.pg_z[p]);
+    point_gradient[p] = VEC3_T({ctx.pg_x[p], ctx.pg_y[p], ctx.pg_z[p]});
   }
 
   mesh.points.gathscat(Ume::Comm::Op::SUM, ctx.point_volume);
@@ -363,7 +363,7 @@ void gradzatz_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &z
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -399,7 +399,7 @@ void gradzatz_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &z
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -409,7 +409,7 @@ void gradzatz_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &z
 
   zone_gradient.assign(mesh.zones.size(), VEC3_T(0.0));
   for (size_t i=0; i<mesh.zones.size(); ++i) {
-      zone_gradient[i] = VEC3_T(z_ctx.zg_x[i], z_ctx.zg_y[i], z_ctx.zg_z[i]);
+      zone_gradient[i] = VEC3_T({z_ctx.zg_x[i], z_ctx.zg_y[i], z_ctx.zg_z[i]});
   }
   mesh.zones.scatter(zone_gradient);
 }
@@ -429,7 +429,7 @@ void gradzatp_invert_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC
   point_gradient.assign(num_points, VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP_INVERT)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -447,7 +447,7 @@ void gradzatp_invert_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATP_INVERT)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
@@ -493,7 +493,7 @@ void gradzatz_invert_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC
   zone_gradient.assign(mesh.zones.size(), VEC3_T(0.0));
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ_INVERT)
     roi_begin_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(1);
@@ -524,7 +524,7 @@ void gradzatz_invert_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC
   }
 
   if (measure) {
-#if defined(ANNOTATE) && defined(ROI_GRADZATZ_INVERT)
+#if defined(ANNOTATE) && defined(KERNEL_GRADZATZ_INVERT)
     roi_end_();
 #ifdef SYNC_ON_ROI
     annotate_synchronize_(2);
