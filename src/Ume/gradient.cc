@@ -340,7 +340,11 @@ void gradzatz_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC3V_T &z
   auto const &corner_type = mesh.corners.mask;
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
 
+#if defined(KERNEL_GRADZATZ)
+  gradzatp(mesh, zone_field, point_gradient, measure);
+#else
   gradzatp_hov(mesh, zone_field, point_gradient, p_ctx, measure);
+#endif
 
   z_ctx.zone_volume.assign(mesh.zones.size(), 0.0);
   for (int corner_idx = 0; corner_idx < num_local_corners; ++corner_idx) {
@@ -479,7 +483,11 @@ void gradzatz_invert_hov(Ume::SOA_Idx::Mesh &mesh, DBLV_T const &zone_field, VEC
   auto const &zone_type = mesh.zones.mask;
   auto const &corner_volume = mesh.ds->caccess_dblv("corner_vol");
 
+#if defined(KERNEL_GRADZATZ_INVERT)
+  gradzatp_invert(mesh, zone_field, point_gradient, measure);
+#else
   gradzatp_invert_hov(mesh, zone_field, point_gradient, p_ctx, measure);
+#endif
 
   z_ctx.pg_x.assign(mesh.points.size(), 0.0);
   z_ctx.pg_y.assign(mesh.points.size(), 0.0);
