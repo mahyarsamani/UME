@@ -23,31 +23,31 @@ void DS_Entry::set_type(DS_Entry::Types type) {
   type_ = type;
   switch (type) {
   case Types::INT:
-    data_ = INT_T();
+    data_ = INT_T{};
     break;
   case Types::INTV:
-    data_ = INTV_T();
+    data_ = INTV_T{};
     break;
   case Types::INTRR:
-    data_ = INTRR_T();
+    data_ = INTRR_T{};
     break;
   case Types::DBL:
-    data_ = DBL_T();
+    data_ = DBL_T{};
     break;
   case Types::DBLV:
-    data_ = DBLV_T();
+    data_ = DBLV_T{};
     break;
   case Types::DBLRR:
-    data_ = DBLRR_T();
+    data_ = DBLRR_T{};
     break;
   case Types::VEC3:
-    data_ = VEC3_T();
+    data_ = VEC3_T{};
     break;
   case Types::VEC3V:
-    data_ = VEC3V_T();
+    data_ = VEC3V_T{};
     break;
   case Types::VEC3RR:
-    data_ = VEC3RR_T();
+    data_ = VEC3RR_T{};
   case Types::NONE:
     break;
   }

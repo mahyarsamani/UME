@@ -33,17 +33,26 @@ if(USE_MPI)
     add_executable(${target_name} ume_mpi.cc)
     target_include_directories(${target_name} PRIVATE ${ANNOTATE_BASE_INC} ${ANNOTATE_TYPE_INC})
     target_link_directories(${target_name} PRIVATE ${ANNOTATE_BASE_LIB_DIR} ${ANNOTATE_TYPE_LIB_DIR})
-    target_link_libraries(${target_name} Ume ${ANNOTATE_LIB_OBJS})
+    target_link_libraries(${target_name} Ume)
     set_target_properties(${target_name} PROPERTIES
       COMPILE_DEFINITIONS "${COMMON_COMPILE_DEFINITIONS};${ANNOTATE_CXX_FLAGS};${ROI_TYPE_FLAG};KERNEL_${ROI_UPPER}"
       COMPILE_OPTIONS "${WARNING_FLAGS}"
     )
     if(HOV)
+      target_sources(${target_name} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/Ume/gradient_hov.cc
+        ${CMAKE_CURRENT_SOURCE_DIR}/Ume/face_area_hov.cc
+      )
       target_compile_definitions(${target_name} PRIVATE HOV)
       target_include_directories(${target_name} PRIVATE ${WORKDIR}/hov/include)
       target_link_directories(${target_name} PRIVATE ${WORKDIR}/hov/lib)
       target_link_libraries(${target_name} hov)
+      # Export all symbols to dynamic table so LD_PRELOAD'd libhov_syscalls.so
+      # can find g_hov_mem_pool/g_hov_mem_size via dlsym(RTLD_DEFAULT).
+      target_link_options(${target_name} PRIVATE "-rdynamic")
     endif()
+    # Annotate libs must come last so the linker resolves symbols from HOV objects
+    target_link_libraries(${target_name} ${ANNOTATE_LIB_OBJS})
   endforeach()
 endif()
 

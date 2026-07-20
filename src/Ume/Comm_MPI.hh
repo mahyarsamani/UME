@@ -39,7 +39,9 @@ public:
       Buffers<DS_Types::VEC3V_T> &recvs) override;
   int stop() override;
   void abort(char const *const message) override;
-
+  // MYSTUFF
+  void barrier();
+  // FFUTSYM
   //! Return a new MPI_Tag value
   int get_tag();
   //! Translate from virtual PE to real PE

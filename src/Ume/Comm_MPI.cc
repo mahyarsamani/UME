@@ -119,6 +119,10 @@ int MPI::stop() {
   return 0;
 }
 
+void MPI::barrier() {
+    MPI_Barrier(MPI_COMM_WORLD);
+}
+
 void MPI::abort(char const *const message) {
   std::cerr << "Transport::abort: " << message << std::endl;
   MPI_Abort(MPI_COMM_WORLD, 1);

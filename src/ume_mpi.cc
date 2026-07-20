@@ -38,10 +38,11 @@
 
 #ifdef HOV
 #include "Ume/hov_context.hh"
+#include "Ume/hov_allocator.hh"
 #endif
 
 using Mesh = Ume::SOA_Idx::Mesh;
-#ifdef ANNOTATE
+#if defined(ANNOTATE)
 extern "C" {
 #include "annotate.h"
 }
@@ -73,7 +74,7 @@ int main(int argc, char *argv[]) {
   Ume::Comm::MPI comm(&argc, &argv);
   mesh.comm = &comm;
 
-#ifdef ANNOTATE
+#if defined(ANNOTATE)
     annotate_init_();
 #endif // ANNOTATE
 
@@ -85,6 +86,15 @@ int main(int argc, char *argv[]) {
     std::cerr << "Aborting." << std::endl;
     return EXIT_FAILURE;
   }
+
+#ifdef HOV
+  /* Synchronize all ranks, then have rank 0 freeze the shared region.
+   * Other ranks' arenas are initialized lazily on first allocation. */
+  comm.barrier();
+  if (comm.pe() == 0)
+    hov_init_arenas(0);
+  comm.barrier();
+#endif
 
   size_t ic = 1; // set iteration count to 1 for default
   if(argc > 3 && std::string(argv[2])=="-i") {
@@ -131,58 +141,72 @@ int main(int argc, char *argv[]) {
   VEC3V_T pgrad, zgrad;
   Ume::Timer orig_time;
 
-#ifdef HOV
+#if defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ)
+#if defined(HOV)
   Ume::GradzatpHOVContext p_ctx;
   Ume::GradzatzHOVContext z_ctx;
   p_ctx.init(mesh, zfield);
   z_ctx.init(mesh);
-
-  Ume::gradzatz_hov(mesh, zfield, zgrad, pgrad, p_ctx, z_ctx);
+#endif // defined(HOV)
+#if defined(ANNOTATE)
+    roi_begin_();
+#if defined(SYNC_ON_ROI)
+    annotate_synchronize_(1);
+#endif // SYNC_ON_ROI
+#endif // ANNOTATE
+#endif // defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ)
   orig_time.start();
-  for (size_t i=0;i<ic;i++) {
-    Ume::gradzatz_hov(mesh, zfield, zgrad, pgrad, p_ctx, z_ctx);
-  }
-  Ume::gradzatz_hov(mesh, zfield, zgrad, pgrad, p_ctx, z_ctx, true);
-  orig_time.stop();
-  p_ctx.destroy();
-  z_ctx.destroy();
-#else
   Ume::gradzatz(mesh, zfield, zgrad, pgrad);
-  orig_time.start();
   for (size_t i=0;i<ic;i++) {
     Ume::gradzatz(mesh, zfield, zgrad, pgrad);
   }
+#if defined(HOV) && (defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ))
+  Ume::gradzatz_hov(mesh, zfield, zgrad, pgrad, p_ctx, z_ctx, true);
+#elif defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ)
   Ume::gradzatz(mesh, zfield, zgrad, pgrad, true);
-  orig_time.stop();
+#else
+  Ume::gradzatz(mesh, zfield, zgrad, pgrad);
 #endif
+  orig_time.stop();
+#if defined(HOV) && (defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ))
+  p_ctx.destroy();
+  z_ctx.destroy();
+#endif // #if defined(HOV) && (defined(KERNEL_GRADZATP) || defined(KERNEL_GRADZATZ))
 
   VEC3V_T pgrad_invert, zgrad_invert;
   Ume::Timer invert_time;
 
-#ifdef HOV
+#if defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT)
+#if defined(HOV)
   Ume::GradzatpInvertHOVContext pi_ctx;
   Ume::GradzatzInvertHOVContext zi_ctx;
   pi_ctx.init(mesh, zfield);
   zi_ctx.init(mesh);
-
-  Ume::gradzatz_invert_hov(mesh, zfield, zgrad_invert, pgrad_invert, pi_ctx, zi_ctx);
+#endif // defined(HOV)
+#if defined(ANNOTATE)
+    roi_begin_();
+#if defined(SYNC_ON_ROI)
+    annotate_synchronize_(1);
+#endif // SYNC_ON_ROI
+#endif // ANNOTATE
+#endif // defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT)
   invert_time.start();
-  for (size_t i=0;i<ic;i++) {
-    Ume::gradzatz_invert_hov(mesh, zfield, zgrad_invert, pgrad_invert, pi_ctx, zi_ctx);
-  }
-  Ume::gradzatz_invert_hov(mesh, zfield, zgrad_invert, pgrad_invert, pi_ctx, zi_ctx, true);
-  invert_time.stop();
-  pi_ctx.destroy();
-  zi_ctx.destroy();
-#else
   Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
-  invert_time.start();
   for (size_t i=0;i<ic;i++) {
     Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
   }
+#if defined(HOV) && (defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT))
+  Ume::gradzatz_invert_hov(mesh, zfield, zgrad_invert, pgrad_invert, pi_ctx, zi_ctx, true);
+#elif defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT)
   Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert, true);
-  invert_time.stop();
+#else
+  Ume::gradzatz_invert(mesh, zfield, zgrad_invert, pgrad_invert);
 #endif
+  invert_time.stop();
+#if defined(HOV) && (defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT))
+  pi_ctx.destroy();
+  zi_ctx.destroy();
+#endif // defined(HOV) && (defined(KERNEL_GRADZATP_INVERT) || defined(KERNEL_GRADZATZ_INVERT))
 
   // Double check that the gradients are non-zero where we expect
   if (comm.pe() == 0) {
@@ -203,27 +227,13 @@ int main(int argc, char *argv[]) {
   DBLV_T face_area(mesh.faces.size(), -100000.0);
   Ume::Timer face_time;
 
-#ifdef HOV
-  Ume::FaceAreaHOVContext f_ctx;
-  f_ctx.init(mesh, face_area);
-
-  Ume::calc_face_area_hov(mesh, face_area, f_ctx);
-  face_time.start();
-  for (size_t i=0;i<ic;i++) {
-    Ume::calc_face_area_hov(mesh, face_area, f_ctx);
-  }
-  Ume::calc_face_area_hov(mesh, face_area, f_ctx, true);
-  face_time.stop();
-  f_ctx.destroy();
-#else
   Ume::calc_face_area(mesh, face_area);
   face_time.start();
   for (size_t i=0;i<ic;i++) {
     Ume::calc_face_area(mesh, face_area);
   }
-  Ume::calc_face_area(mesh, face_area, true);
+  Ume::calc_face_area(mesh, face_area);
   face_time.stop();
-#endif
 
   if (comm.pe() == 0)
     std::cout << "Face area computation took: " << face_time.seconds() << "s\n";
@@ -294,24 +304,32 @@ int main(int argc, char *argv[]) {
   if (comm.pe() == 0)
     std::cout << "Calculating face areas..." << std::endl;
 
-#ifdef HOV
+#if defined(KERNEL_FACE_AREA)
+#if defined(HOV)
   Ume::FaceAreaHOVContext f_ctx2;
   f_ctx2.init(mesh, face_area);
-  Ume::calc_face_area_hov(mesh, face_area, f_ctx2);
-
+#endif // defined(HOV)
+#if defined(ANNOTATE)
+    roi_begin_();
+#if defined(SYNC_ON_ROI)
+    annotate_synchronize_(1);
+#endif // SYNC_ON_ROI
+#endif // ANNOTATE
+#endif // defined(KERNEL_FACE_AREA)
+  Ume::calc_face_area(mesh, face_area);
   orig_time.clear();
   orig_time.start();
+#if defined(HOV) && defined(KERNEL_FACE_AREA)
   Ume::calc_face_area_hov(mesh, face_area, f_ctx2, true);
-  orig_time.stop();
-  f_ctx2.destroy();
+#elif defined(KERNEL_FACE_AREA)
+  Ume::calc_face_area(mesh, face_area, true);
 #else
   Ume::calc_face_area(mesh, face_area);
-
-  orig_time.clear();
-  orig_time.start();
-  Ume::calc_face_area(mesh, face_area, true);
-  orig_time.stop();
 #endif
+  orig_time.stop();
+#if defined(HOV) && defined(KERNEL_FACE_AREA)
+  f_ctx2.destroy();
+#endif // defined(HOV) && defined(KERNEL_FACE_AREA)
 
   if (comm.pe() == 0)
     std::cout << "Face area calculation took: " << orig_time.seconds() << "s\n";

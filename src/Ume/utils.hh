@@ -62,8 +62,8 @@ inline void read_bin<std::string>(std::istream &is, std::string &data) {
 }
 
 //! Binary write for std::vector
-template <class T>
-void write_bin(std::ostream &os, std::vector<T> const &data) {
+template <class T, class A>
+void write_bin(std::ostream &os, std::vector<T, A> const &data) {
   write_bin(os, data.size());
   if (!data.empty()) {
     os.write(reinterpret_cast<const char *>(data.data()),
@@ -73,11 +73,11 @@ void write_bin(std::ostream &os, std::vector<T> const &data) {
 }
 
 //! Binary read for std::vector
-template <class T> void read_bin(std::istream &is, std::vector<T> &data) {
+template <class T, class A> void read_bin(std::istream &is, std::vector<T, A> &data) {
   size_t len;
   read_bin(is, len);
   if (len == 0) {
-    std::vector<T> foo;
+    std::vector<T, A> foo;
     data.swap(foo);
   } else {
     data.resize(len);

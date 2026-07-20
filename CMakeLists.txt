@@ -90,11 +90,18 @@ if(NOT "${ANNOTATE_TOOL}notset" STREQUAL "notset")
         find_package(Threads REQUIRED)
         set( ANNOTATE_TYPE_INC ${PAPI_INSTALLATION_PATH}/include)
         set( ANNOTATE_TYPE_LIB_DIR ${PAPI_INSTALLATION_PATH}/lib)
-        set( ANNOTATE_LIB_OBJS annotate.papi papi pthread)
+
+        add_library(annotate_static STATIC IMPORTED)
+        set_target_properties(annotate_static PROPERTIES
+          IMPORTED_LOCATION "${ANNOTATE_BASE_LIB_DIR}/libannotate.papi.a")
+        set( ANNOTATE_LIB_OBJS annotate_static papi pthread)
     endif()
 
     if( ${ANNOTATE_TOOL} STREQUAL "gem5fs")
-        set( ANNOTATE_LIB_OBJS annotate.gem5fs m5)
+        add_library(annotate_static STATIC IMPORTED)
+        set_target_properties(annotate_static PROPERTIES
+          IMPORTED_LOCATION "${ANNOTATE_BASE_LIB_DIR}/libannotate.gem5fs.a")
+        set( ANNOTATE_LIB_OBJS annotate_static m5)
     endif()
 endif()
 
